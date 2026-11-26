@@ -10,11 +10,15 @@ export function esc(text) {
 }
 
 function srcLine(source, year) {
-  return `<p class="src">Source: ${esc(source)} · ${year}</p>`;
+  // The year is part of most publication names already ("Population Trends
+  // 2024"); only add it when the source text does not name it.
+  const suffix = String(source).includes(String(year)) ? '' : ` · ${year}`;
+  return `<p class="src">Source: ${esc(source)}${suffix}</p>`;
 }
 
 function statCard(h) {
-  return `<article class="stat"><p class="stat-label">${esc(h.label)}</p><p class="stat-value">${esc(h.value)}</p><p class="stat-detail">${esc(h.detail)}</p><p class="src">${esc(h.source)} · ${h.year}</p></article>`;
+  const suffix = String(h.source).includes(String(h.year)) ? '' : ` · ${h.year}`;
+  return `<article class="stat"><p class="stat-label">${esc(h.label)}</p><p class="stat-value">${esc(h.value)}</p><p class="stat-detail">${esc(h.detail)}</p><p class="src">${esc(h.source)}${suffix}</p></article>`;
 }
 
 function pageHead(kicker, title, intro) {

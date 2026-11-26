@@ -26,11 +26,15 @@ export function lineChart(series, { width = 640, height = 260, color = '#0f766e'
   const grid = [0, 0.5, 1].map((f) => {
     const v = min + (max - min) * f;
     const gy = y(v);
-    return `<line x1="${padL}" y1="${gy}" x2="${width - padR}" y2="${gy}" stroke="#e3ddd2" stroke-width="1"/><text x="${padL - 6}" y="${gy + 4}" text-anchor="end" font-size="11" fill="#6b7280">${format(Math.round(v * 10) / 10)}</text>`;
+    // The zero line needs no number, and the top line needs none when a
+    // point sits on it: either keeps a point label from touching an axis label.
+    const hide = f === 0 || (f === 1 && series.values.some((pv) => Math.abs(pv - max) < 1e-9));
+    const label = hide ? '' : `<text x="${padL - 6}" y="${gy + 4}" text-anchor="end" font-size="11" fill="#6b7280">${format(Math.round(v * 10) / 10)}</text>`;
+    return `<line x1="${padL}" y1="${gy}" x2="${width - padR}" y2="${gy}" stroke="#e3ddd2" stroke-width="1"/>${label}`;
   }).join('');
   const labels = series.years.map((yr, i) => `<text x="${x(i)}" y="${height - 8}" text-anchor="middle" font-size="11" fill="#6b7280">${yr}</text>`).join('');
   const dots = series.values.map((v, i) => `<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="${color}"/><text x="${x(i)}" y="${y(v) - 10}" text-anchor="middle" font-size="11" font-weight="600" fill="#1e3a5f">${format(v)}</text>`).join('');
-  return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(series.label)}" class="chart">${grid}<polyline points="${points}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}${labels}<text x="${padL}" y="12" font-size="11" fill="#6b7280">${esc(yLabel)}</text></svg>`;
+  return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(series.label)}" class="chart">${grid}<polyline points="${points}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}${labels}<text x="${width - padR}" y="12" text-anchor="end" font-size="11" fill="#6b7280">${esc(yLabel)}</text></svg>`;
 }
 
 // Vertical bar chart. Negative values draw below the zero line.
@@ -46,7 +50,9 @@ export function barChart(series, { width = 640, height = 260, format = (v) => St
     const cx = padL + slot * i + slot / 2;
     const top = Math.min(y(v), zeroY), h = Math.abs(y(v) - zeroY);
     const fill = v < 0 ? '#b45309' : '#0f766e';
-    const labY = v < 0 ? y(v) + 16 : y(v) - 8;
+    // Positive bars label above the bar; a negative bar labels just above
+    // the zero line, so the value never collides with the year labels.
+    const labY = v < 0 ? zeroY - 8 : y(v) - 8;
     return `<rect x="${(cx - barW / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${barW}" height="${Math.max(h, 2).toFixed(1)}" rx="3" fill="${fill}"/><text x="${cx}" y="${labY.toFixed(1)}" text-anchor="middle" font-size="11" font-weight="600" fill="#1e3a5f">${format(v)}</text><text x="${cx}" y="${height - 8}" text-anchor="middle" font-size="11" fill="#6b7280">${series.years[i]}</text>`;
   }).join('');
   return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(series.label)}" class="chart"><line x1="${padL}" y1="${zeroY}" x2="${width - padR}" y2="${zeroY}" stroke="#94a3b8" stroke-width="1"/>${bars}</svg>`;

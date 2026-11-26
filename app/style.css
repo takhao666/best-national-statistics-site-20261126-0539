@@ -67,10 +67,10 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .stat {
   background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 16px 18px;
+  padding: 13px 16px;
 }
 .stat-label { font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 4px; }
-.stat-value { font-family: Georgia, serif; font-size: 1.9rem; font-weight: 700; color: var(--ink); margin: 0; line-height: 1.15; }
+.stat-value { font-family: Georgia, serif; font-size: 1.75rem; font-weight: 700; color: var(--ink); margin: 0; line-height: 1.15; }
 .stat-detail { margin: 4px 0 0; font-size: .92rem; }
 
 /* Panels and two-column rows */
